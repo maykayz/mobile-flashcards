@@ -1,19 +1,28 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, {Component} from 'react';
+import { Text, View,SafeAreaView,TouchableOpacity } from 'react-native';
+import Constants from 'expo-constants';
+import DeckListView from './components/DeckListView'
+import DeckDetailView from './components/DeckDetailView'
+import QuizView from './components/QuizView'
+import { YellowBox } from 'react-native';
+YellowBox.ignoreWarnings(['Remote debugger']);
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
-  );
+class App extends Component {
+  handlePress = (e) => {
+    alert("Hello")
+  }
+  render() {
+    return (
+          // <DeckListView />
+          // <DeckDetailView />
+          <QuizView />
+    );
+  }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App
+// - cd mobile-flashcards
+// - npm start # you can open iOS, Android, or web from here, or run them directly with the commands below.
+// - npm run android
+// - npm run ios
+// - npm run web
