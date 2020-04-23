@@ -4,6 +4,8 @@ import Constants from 'expo-constants';
 import DeckListView from './components/DeckListView'
 import DeckDetailView from './components/DeckDetailView'
 import QuizView from './components/QuizView'
+import NewDeckView from './components/NewDeckView'
+import NewQuizView from './components/NewQuizView'
 import { YellowBox } from 'react-native';
 YellowBox.ignoreWarnings(['Remote debugger']);
 
@@ -15,7 +17,9 @@ class App extends Component {
     return (
           // <DeckListView />
           // <DeckDetailView />
-          <QuizView />
+          // <QuizView />
+          // <NewDeckView />
+          <NewQuizView />
     );
   }
 }
