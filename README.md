@@ -1,5 +1,25 @@
-// - cd mobile-flashcards
-// - npm start # you can open iOS, Android, or web from here, or run them directly with the commands below.
-// - npm run android
-// - npm run ios
-// - npm run web
+
+## DEPENDENCIES INSTALLATION
+
+### `npm install`
+
+## RUNNING
+
+### `npm start`
+
+## TESTING
+
+### `npm test`
+
+Launches the test runner in the interactive watch mode.
+
+## RUNNING
+
+### Android
+#### `npm run android`
+
+### iOS
+###$ `npm run ios`
+
+### Web
+###$ `npm run web`
