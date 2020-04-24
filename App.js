@@ -1,32 +1,48 @@
+import 'react-native-gesture-handler';
 import React, {Component} from 'react';
-import { Text, View,SafeAreaView,TouchableOpacity } from 'react-native';
+import { Text, View,SafeAreaView,TouchableOpacity ,YellowBox} from 'react-native';
 import Constants from 'expo-constants';
-import DeckListView from './components/DeckListView'
-import DeckDetailView from './components/DeckDetailView'
-import QuizView from './components/QuizView'
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import DeckNavigationController from './components/DeckNavigationController'
 import NewDeckView from './components/NewDeckView'
-import NewQuizView from './components/NewQuizView'
-import { YellowBox } from 'react-native';
+import {setLocalNotification} from './utils/helpers'
+
 YellowBox.ignoreWarnings(['Remote debugger']);
 
+const Tab = createBottomTabNavigator();
+
 class App extends Component {
-  handlePress = (e) => {
-    alert("Hello")
+  componentDidMount(){
+    setLocalNotification()
   }
   render() {
     return (
-          // <DeckListView />
-          // <DeckDetailView />
-          // <QuizView />
-          // <NewDeckView />
-          <NewQuizView />
+      <NavigationContainer onNavigationStateChange={this.handleNavigationStateChange}>
+          <Tab.Navigator>
+            <Tab.Screen name="Home"
+            options={{
+              tabBarLabel: 'Home',
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons name="home" color={color} size={size} />
+              ),
+            }}
+         component={DeckNavigationController} />
+            <Tab.Screen name="New Deck"
+            options={{
+              tabBarLabel: 'New Deck',
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons name="cards" color={color} size={size} />
+              ),
+            }}
+            component={NewDeckView} />
+          </Tab.Navigator>
+      </NavigationContainer>
+
     );
   }
 }
 
 export default App
-// - cd mobile-flashcards
-// - npm start # you can open iOS, Android, or web from here, or run them directly with the commands below.
-// - npm run android
-// - npm run ios
-// - npm run web

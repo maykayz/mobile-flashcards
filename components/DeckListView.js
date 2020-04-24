@@ -1,68 +1,78 @@
 import React, {Component} from 'react';
-import { Text, View,SafeAreaView,StyleSheet,TouchableOpacity,FlatList } from 'react-native';
+import { Text, View,SafeAreaView,StyleSheet,TouchableOpacity,FlatList,YellowBox,RefreshControl } from 'react-native';
 import Constants from 'expo-constants';
-import { YellowBox } from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import {getDecks} from '../utils/helpers'
 YellowBox.ignoreWarnings(['Remote debugger']);
 
 function DeckItem (item){
   const deck = item.item
+  console.log(deck)
   return (
       <View style={styles.deckItem}>
           <Text>{deck.title}</Text>
-          <Text>2 cards</Text>
+          <Text>{deck.questions.length} cards</Text>
       </View>
   )
 }
 
 class DeckListView extends Component {
   state = {
-    decks: [
-      {
-        'React':
-          {
-            title: 'React',
-            questions: [
-              {
-                question: 'What is React?',
-                answer: 'A library for managing user interfaces'
-              },
-              {
-                question: 'Where do you make Ajax requests in React?',
-                answer: 'The componentDidMount lifecycle event'
-              }
-            ]
-          }
-    },
-      {
-        'JavaScript':
-        {
-          title: 'JavaScript',
-          questions: [
-            {
-              question: 'What is a closure?',
-              answer: 'The combination of a function and the lexical environment within which that function was declared.'
-            }
-          ]
-        }
-      },
-
-    ]
+    decks: [],
+    isRefreshing: false
   }
-  handlePress = (e) => {
-    alert("Hello")
+  getDeck = () => {
+    getDecks().then(res => {
+      var temp = Object.values(res)
+      if(temp){
+        this.setState({
+          decks : temp
+        })
+      }
+    })
+  }
+  componentDidMount(){
+    this.getDeck()
+  }
+  handlePress = (e,deck) => {
+    var {navigation} = this.props
+    navigation.navigate('DeckDetail',{
+      deck: deck
+    })
   }
   renderDeck = (item) => {
-    const deck = Object.values(item.item)[0]
+    console.log(item)
+    const deck = item.item
     return (
-      <DeckItem item={deck}/>
+      <TouchableOpacity onPress={e => this.handlePress(e,deck)}>
+        <DeckItem item={deck}/>
+      </TouchableOpacity>
     )
   }
-  render() {
-    const decks = Object.values(this.state.decks)
-    return (
-          <FlatList style={styles.container} data={this.state.decks} renderItem={this.renderDeck}>
-          </FlatList>
-    );
+  onRefresh = () => {
+    this.getDeck()
+  }
+  render (){
+    const {decks} = this.state
+    if(decks){
+      return (
+        <FlatList data={decks} renderItem={this.renderDeck}
+        refreshControl={
+            <RefreshControl
+              refreshing={this.state.isRefreshing}
+              style={{ width: '100%', height: '0' }}
+              onRefresh={this.onRefresh.bind(this)}
+            />
+          }
+          >
+        </FlatList>
+      );
+    }else{
+      return (
+        <Text>Loading</Text>
+      )
+    }
   }
 }
 const styles = StyleSheet.create({
@@ -73,7 +83,6 @@ const styles = StyleSheet.create({
   deckItem: {
     height: 100,
     marginTop: 10,
-    color: 'black',
     backgroundColor: '#ececec',
     justifyContent: 'center',
     alignItems: 'center',
@@ -117,3 +126,7 @@ const styles = StyleSheet.create({
 })
 
 export default DeckListView
+
+
+// <FlatList style={styles.container} data={decks} renderItem={this.renderDeck}>
+// </FlatList>

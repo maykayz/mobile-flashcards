@@ -1,0 +1,7 @@
+export const QUIZ_STORAGE_KEY = 'QUIZ_STORAGE_KEY'
+export const DECK_STORAGE_KEY = 'DECK_STORAGE_KEY'
+export const NOTIFICATION_KEY = 'NOTIFICATION_KEY'
+
+export const RECEIVE_DECKS = 'RECEIVE_DECKS';
+export const ADD_DECK = 'ADD_DECK';
+export const ADD_CARD = 'ADD_CARD';

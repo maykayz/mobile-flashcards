@@ -1,31 +1,43 @@
 import React, {Component} from 'react';
-import { Text, View,SafeAreaView,StyleSheet,TouchableOpacity,FlatList } from 'react-native';
+import { Text, View,StyleSheet,TouchableOpacity,FlatList ,TextInput, KeyboardAvoidingView,Platform,YellowBox} from 'react-native';
 import Constants from 'expo-constants';
-import { YellowBox } from 'react-native';
+import {saveDeck} from '../utils/helpers'
+
 YellowBox.ignoreWarnings(['Remote debugger']);
 
 class NewDeckView extends Component {
   state = {
-    title: ''
+    title: 'Enter Deck Name: '
   }
   handlePress = (e) => {
-    // add deck to deck list
+    e.preventDefault()
     const {title} = this.state
-    alert("Added Deck to Deck List")
+    var {navigation} = this.props
+    saveDeck(title).then(res => {
+      navigation.navigate('DeckList',{
+        needRender: true
+      })
+    })
+  }
+  onChangeText = (text) => {
+    const input = text
+    this.setState({
+      title : input
+    })
   }
   render() {
     const {title} = this.state
     return (
-      <View style={[styles.container,styles.justifyBetween]}>
-          <Text style={[styles.title2,styles.textRight]}>New Deck</Text>
+      <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : "height"} style={[styles.container,styles.justifyBetween]}>
           <View style={[styles.flex1,styles.alignCenter]}>
-              <Text style={[styles.title3,styles.textCenter]}>Title</Text>
-              <Text style={[styles.title3,styles.textCenter]}>Enter Your Title Here in Input Field</Text>
+              <Text style={[styles.title2Sub,styles.textCenter]}>Enter Your Deck Name</Text>
+              <TextInput style={[styles.inputText,styles.textCenter,styles.mt40,styles.title3]} clearTextOnFocus={true} caretHidden={false} value={title} onChangeText={text => this.onChangeText(text)}></TextInput>
               <TouchableOpacity style={[styles.btn,styles.btnPrimary,styles.mt100]}  onPress={e => this.handlePress(e)}>
                   <Text style={[styles.textWhite]}>Create</Text>
               </TouchableOpacity>
+              <Text style={[styles.textCenter,styles.mt40]}>Drag DeckList UI to refresh</Text>
           </View>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }
@@ -43,7 +55,6 @@ const styles = StyleSheet.create({
   deckItem: {
     height: 100,
     marginTop: 10,
-    color: 'black',
     backgroundColor: '#ececec',
     justifyContent: 'center',
     alignItems: 'center',
@@ -77,8 +88,14 @@ const styles = StyleSheet.create({
   title1: {
     fontSize: 40
   },
+  title1Sub: {
+    fontSize: 32
+  },
   title2: {
     fontSize: 28
+  },
+  title2Sub: {
+    fontSize: 24
   },
   title3: {
     fontSize: 16,
@@ -125,6 +142,12 @@ const styles = StyleSheet.create({
   btnDanger: {
     backgroundColor: '#dc3545',
   },
+  inputText: {
+    alignSelf: 'stretch',
+    borderBottomWidth : 1.0,
+    borderBottomColor: '#000',
+    padding: 10,
+  }
 })
 
 export default NewDeckView

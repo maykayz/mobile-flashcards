@@ -7,40 +7,51 @@ YellowBox.ignoreWarnings(['Remote debugger']);
 class DeckDetailView extends Component {
   state = {
     deck:{
-        title: 'React',
-        questions: [
-          {
-            question: 'What is React?',
-            answer: 'A library for managing user interfaces'
-          },
-          {
-            question: 'Where do you make Ajax requests in React?',
-            answer: 'The componentDidMount lifecycle event'
-          }
-        ]
       }
   }
-  handlePress = (e) => {
-    alert("Hello")
+  componentDidMount(){
+    const {deck} = this.props.route.params
+    console.log(deck)
+    this.setState({
+      deck: deck
+    })
+  }
+  startQuiz = (e) => {
+    var {navigation} = this.props
+    navigation.navigate('Quiz',{
+      deck: this.state.deck
+    })
+  }
+  addQuiz = (e) => {
+    var {navigation} = this.props
+    navigation.navigate('NewQuiz',{
+      deck: this.state.deck
+    })
   }
   render() {
     const {deck} = this.state
-    return (
-      <View style={[styles.container,styles.alignCenter,styles.justifyBetween]}>
-          <View style={styles.flex1}>
-              <Text style={[styles.title1,styles.textCenter]}>{deck.title}</Text>
-              <Text style={[styles.title2,styles.textCenter]}>{deck.questions.length} Cards</Text>
-          </View>
-          <View style={[styles.flex1]}>
-              <TouchableOpacity style={[styles.btn,styles.btnPrimary]} onPress={e => this.handlePress(e)}>
-                  <Text style={[styles.textWhite]}>Start Quiz</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.btn,styles.btnSecondary]}  onPress={e => this.handlePress(e)}>
-                  <Text style={[styles.textWhite]}>Add Quiz</Text>
-              </TouchableOpacity>
-          </View>
-      </View>
-    );
+    if(deck){
+      return (
+        <View style={[styles.container,styles.alignCenter,styles.justifyBetween]}>
+            <View style={styles.flex1}>
+                <Text style={[styles.title1,styles.textCenter]}>{deck.title}</Text>
+                <Text style={[styles.title2,styles.textCenter]}>{deck.questions ? deck.questions.length : 0} Cards</Text>
+            </View>
+            <View style={[styles.flex1]}>
+                <TouchableOpacity style={[styles.btn,styles.btnPrimary]} onPress={e => this.startQuiz(e)}>
+                    <Text style={[styles.textWhite]}>Start Quiz</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.btn,styles.btnSecondary]}  onPress={e => this.addQuiz(e)}>
+                    <Text style={[styles.textWhite]}>Add Quiz</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+      );
+    }else{
+      return(
+        <Text style={[styles.title3,styles.textCenter]}>Loading</Text>
+      )
+    }
   }
 }
 const styles = StyleSheet.create({
@@ -56,7 +67,6 @@ const styles = StyleSheet.create({
   deckItem: {
     height: 100,
     marginTop: 10,
-    color: 'black',
     backgroundColor: '#ececec',
     justifyContent: 'center',
     alignItems: 'center',

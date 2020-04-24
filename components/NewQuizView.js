@@ -1,40 +1,74 @@
 import React, {Component} from 'react';
-import { Text, View,SafeAreaView,StyleSheet,TouchableOpacity,FlatList } from 'react-native';
+import { Text, View,SafeAreaView,StyleSheet,TouchableOpacity,FlatList,KeyboardAvoidingView ,TextInput,Platform} from 'react-native';
 import Constants from 'expo-constants';
 import { YellowBox } from 'react-native';
+import {saveDeckTitle} from '../utils/helpers'
+
 YellowBox.ignoreWarnings(['Remote debugger']);
+
 
 class NewQuizView extends Component {
   state = {
     deck: '',
     question: {
 
-    }
+    },
+    questionText: '',
+    answerText: '',
+    title: ''
   }
   handlePress = (e) => {
-    // add deck to deck list
-    const {question,deck} = this.state
-    alert("Added Question to Specific Deck")
+    var {questionText,answerText} = this.state
+    var {navigation} = this.props
+    var {deck} = this.props.route.params
+    var question = {
+      question: questionText,
+      answer: answerText
+    }
+    saveDeckTitle(deck.title,question).then(res => {
+      navigation.navigate('DeckList')
+    })
+  }
+  onChangeTextQuestion = (text) => {
+    this.setState({
+      questionText : text
+    })
+  }
+  onChangeTextAnswer = (text) => {
+    this.setState({
+        answerText : text
+    })
+  }
+  componentDidMount(){
+    var {deck} = this.props.route.params
+    console.log("NEQ QUIZ VIEW")
+    console.log(deck)
+    if(deck){
+      this.setState({
+        title: deck.title
+      })
+    }
   }
   render() {
-    const {question,deck} = this.state
+    const {question,deck,questionText,answerText} = this.state
+
     return (
-      <View style={[styles.container,styles.justifyBetween]}>
+      <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : "height"} style={[styles.container,styles.justifyBetween]}>
           <Text style={[styles.title2,styles.textCenter]}>New Quiz</Text>
           <View style={[styles.flex1,styles.alignCenter]}>
               <View>
-                  <Text style={[styles.title3,styles.textCenter]}>Question</Text>
-                  <Text style={[styles.title3,styles.textCenter]}>Enter Your Question Here in Input Field</Text>
+                  <Text style={[styles.title2Sub,styles.textCenter]}>Enter Question</Text>
+                  <TextInput style={[styles.inputText,styles.textCenter,styles.mt20,styles.title3]} clearTextOnFocus={true} caretHidden={false} value={questionText} onChangeText={text => this.onChangeTextQuestion(text)}></TextInput>
               </View>
               <View style={[styles.mt40]}>
-                  <Text style={[styles.title3,styles.textCenter]}>Answer</Text>
-                  <Text style={[styles.title3,styles.textCenter]}>Enter Your Answer Here in Input Field</Text>
+                  <Text style={[styles.title2Sub,styles.textCenter]}>Enter Answer</Text>
+                  <TextInput style={[styles.inputText,styles.textCenter,styles.mt20,styles.title3]} clearTextOnFocus={true} caretHidden={false} value={answerText} onChangeText={text => this.onChangeTextAnswer(text)}></TextInput>
               </View>
               <TouchableOpacity style={[styles.btn,styles.btnPrimary,styles.mt100]}  onPress={e => this.handlePress(e)}>
                   <Text style={[styles.textWhite]}>Create</Text>
               </TouchableOpacity>
           </View>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }
@@ -52,7 +86,6 @@ const styles = StyleSheet.create({
   deckItem: {
     height: 100,
     marginTop: 10,
-    color: 'black',
     backgroundColor: '#ececec',
     justifyContent: 'center',
     alignItems: 'center',
@@ -86,8 +119,14 @@ const styles = StyleSheet.create({
   title1: {
     fontSize: 40
   },
+  title1Sub: {
+    fontSize: 32
+  },
   title2: {
     fontSize: 28
+  },
+  title2Sub: {
+    fontSize: 24
   },
   title3: {
     fontSize: 16,
@@ -134,6 +173,12 @@ const styles = StyleSheet.create({
   btnDanger: {
     backgroundColor: '#dc3545',
   },
+  inputText: {
+    alignSelf: 'stretch',
+    borderBottomWidth : 1.0,
+    borderBottomColor: '#000',
+    padding: 10,
+  }
 })
 
 export default NewQuizView

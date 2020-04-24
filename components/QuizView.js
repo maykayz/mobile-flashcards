@@ -5,20 +5,11 @@ import { YellowBox } from 'react-native';
 YellowBox.ignoreWarnings(['Remote debugger']);
 
 
-function FrontView ({item,numberOfCards,index,handleViewAnswer}){
-  function handleCorrect(e){
-      e.preventDefault()
-      alert("U Hit Correct")
-  }
-  function handleWrong(e){
-      e.preventDefault()
-      alert("U Hit Wrong")
-  }
+function FrontView ({item,numberOfCards,index,handleViewAnswer,handleCorrect,handleWrong}){
   const question = item
-  console.log(question)
   return (
     <View style={[styles.container,styles.justifyBetween]}>
-        <Text style={[styles.title3,styles.textLeft]}>{index}/{numberOfCards}</Text>
+        <Text style={[styles.title3,styles.textLeft]}>{index+1}/{numberOfCards}</Text>
         <View style={[styles.flex1]}>
             <Text style={[styles.title2,styles.textCenter]}>{question}</Text>
         </View>
@@ -54,22 +45,77 @@ function BackView ({item,numberOfCards,index,handleBack}){
   )
 }
 
+function CompleteView ({totalMark,totalQuestion}){
+  var completeText = '';
+  if(totalMark == totalQuestion){
+    completeText = "Awesome...!"
+  }else if(totalMark == 0){
+    completeText = "Try Again Later"
+  }else{
+    completeText = "Yay.. You did it..!"
+  }
+  return (
+    <View style={[styles.container,styles.justifyBetween]}>
+        <View style={[styles.flex1,styles.alignCenter]}>
+            <Text style={[styles.title2,styles.textCenter]}>{completeText}</Text>
+            <Text style={styles.mt40}>Your total mark is {totalMark}/{totalQuestion}</Text>
+        </View>
+    </View>
+  )
+}
+
 class QuizView extends Component {
   state = {
     isQuestionView: true,
-    question:
-      {
-          question: 'React uses the virtual DOM instead of the real DOMs.',
-          answer: 'Correct'
-      },
-      numberOfCards : 6,
-      index: 3
+    currentCardIndex: 0,
+    totalMark: 0,
+    deck: {},
+    isComplete: false
+  }
+  componentDidMount(){
+    const {deck} = this.props.route.params
+    this.setState({
+      deck: deck
+    })
   }
   handleViewAnswer = (e) => {
       e.preventDefault()
       this.setState({
         isQuestionView: false
       })
+  }
+  handleCorrect = (e) => {
+      e.preventDefault()
+      const {deck,totalMark,currentCardIndex} = this.state
+      this.setState({
+        totalMark: totalMark+1
+      })
+      if(currentCardIndex < deck.questions.length){
+        this.setState({
+          currentCardIndex: currentCardIndex+1
+        })
+      }else if(currentCardIndex == deck.questions.length){
+        var {navigation} = this.props
+        navigation.navigate('Complete',{
+          totalMark: this.state.totalMark,
+          totalQuestion: deck.questions.length
+        })
+      }
+  }
+  handleWrong = (e) => {
+    e.preventDefault()
+    const {deck,currentCardIndex} = this.state
+    if(currentCardIndex < deck.questions.length){
+      this.setState({
+        currentCardIndex: currentCardIndex+1
+      })
+    }else if(currentCardIndex == deck.questions.length){
+      var {navigation} = this.props
+      navigation.navigate('Complete',{
+        totalMark: this.state.totalMark,
+        totalQuestion: deck.questions.length
+      })
+    }
   }
   handleBack = (e) => {
       e.preventDefault()
@@ -78,17 +124,42 @@ class QuizView extends Component {
       })
   }
   render() {
-    const {numberOfCards,index,question} = this.state
-    if(this.state.isQuestionView){
-      return (
-          <FrontView item={question.question} numberOfCards={numberOfCards} index={index} handleViewAnswer={this.handleViewAnswer} />
-      );
-    }else{
-      return (
-          <BackView item={question.answer} numberOfCards={numberOfCards} index={index} handleBack={this.handleBack} />
-      );
-    }
-
+    const {currentCardIndex,totalMark} = this.state
+    const {deck} = this.props.route.params
+    const totalQuestion = deck.questions.length
+      if(deck){
+        if(deck.questions && deck.questions.length > 0){
+          if(currentCardIndex < totalQuestion){
+            var question = deck.questions[currentCardIndex]
+            var totalQuestions = totalQuestion
+            if(this.state.isQuestionView){
+              return (
+                  <FrontView item={question.question} numberOfCards={totalQuestions} index={currentCardIndex}
+                      handleViewAnswer={this.handleViewAnswer}
+                      handleCorrect={this.handleCorrect}
+                      handleWrong={this.handleWrong}
+                  />
+              );
+            }else{
+              return (
+                  <BackView item={question.answer} numberOfCards={totalQuestions} index={currentCardIndex} handleBack={this.handleBack} />
+              );
+            }
+          }else{
+            return (
+                <CompleteView totalMark={totalMark} totalQuestion={totalQuestion}/>
+            )
+          }
+        }else{
+          return (
+            <Text style={styles.title3}>No Questions</Text>
+          )
+        }
+      }else{
+        return (
+          <Text style={styles.title3}>Loading</Text>
+        )
+      }
   }
 }
 const styles = StyleSheet.create({
@@ -105,7 +176,6 @@ const styles = StyleSheet.create({
   deckItem: {
     height: 100,
     marginTop: 10,
-    color: 'black',
     backgroundColor: '#ececec',
     justifyContent: 'center',
     alignItems: 'center',
