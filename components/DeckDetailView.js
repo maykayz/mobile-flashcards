@@ -11,7 +11,6 @@ class DeckDetailView extends Component {
   }
   componentDidMount(){
     const {deck} = this.props.route.params
-    console.log(deck)
     this.setState({
       deck: deck
     })

@@ -134,9 +134,3 @@ export function  setLocalNotification() {
       }
     });
 }
-
-
-
-// 
-// import {setLocalNotification,clearLocalNotification} from '../utils/helpers'
-//     clearLocalNotification().then(setLocalNotification)

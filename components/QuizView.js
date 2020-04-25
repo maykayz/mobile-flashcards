@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import { Text, View,SafeAreaView,StyleSheet,TouchableOpacity,FlatList } from 'react-native';
+import {setLocalNotification,clearLocalNotification} from '../utils/helpers'
 import Constants from 'expo-constants';
 import { YellowBox } from 'react-native';
 YellowBox.ignoreWarnings(['Remote debugger']);
@@ -45,7 +46,13 @@ function BackView ({item,numberOfCards,index,handleBack}){
   )
 }
 
-function CompleteView ({totalMark,totalQuestion}){
+function CompleteView ({totalMark,totalQuestion,backToDeck,restartQuiz}){
+
+
+
+
+
+      clearLocalNotification().then(setLocalNotification)
   var completeText = '';
   if(totalMark == totalQuestion){
     completeText = "Awesome...!"
@@ -59,6 +66,14 @@ function CompleteView ({totalMark,totalQuestion}){
         <View style={[styles.flex1,styles.alignCenter]}>
             <Text style={[styles.title2,styles.textCenter]}>{completeText}</Text>
             <Text style={styles.mt40}>Your total mark is {totalMark}/{totalQuestion}</Text>
+        </View>
+        <View style={[styles.flex1,styles.alignCenter]}>
+            <TouchableOpacity style={[styles.btn,styles.btnPrimary]} onPress={e => restartQuiz(e)}>
+                <Text style={[styles.textWhite]}>Restart Quiz</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.btn,styles.btnSecondary]}  onPress={e => backToDeck(e)}>
+                <Text style={[styles.textWhite]}>Back To Deck</Text>
+            </TouchableOpacity>
         </View>
     </View>
   )
@@ -76,6 +91,19 @@ class QuizView extends Component {
     const {deck} = this.props.route.params
     this.setState({
       deck: deck
+    })
+  }
+  restartQuiz = (e) => {
+    this.setState({
+      isComplete: false,
+      currentCardIndex: 0,
+      totalMark:0
+    })
+  }
+  backToDeck = (e) => {
+    var {navigation} = this.props
+    navigation.navigate('DeckDetail',{
+      deck: this.state.deck
     })
   }
   handleViewAnswer = (e) => {
@@ -147,7 +175,7 @@ class QuizView extends Component {
             }
           }else{
             return (
-                <CompleteView totalMark={totalMark} totalQuestion={totalQuestion}/>
+                <CompleteView totalMark={totalMark} totalQuestion={totalQuestion} restartQuiz={this.restartQuiz} backToDeck={this.backToDeck}/>
             )
           }
         }else{

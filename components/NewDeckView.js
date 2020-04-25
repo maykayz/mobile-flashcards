@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { Text, View,StyleSheet,TouchableOpacity,FlatList ,TextInput, KeyboardAvoidingView,Platform,YellowBox} from 'react-native';
 import Constants from 'expo-constants';
-import {saveDeck} from '../utils/helpers'
+import {saveDeck,getDeck} from '../utils/helpers'
 
 YellowBox.ignoreWarnings(['Remote debugger']);
 
@@ -14,8 +14,11 @@ class NewDeckView extends Component {
     const {title} = this.state
     var {navigation} = this.props
     saveDeck(title).then(res => {
-      navigation.navigate('DeckList',{
-        needRender: true
+      getDeck(title).then(deck => {
+        console.log(deck)
+        navigation.navigate('DeckDetail',{
+            deck: deck
+        })
       })
     })
   }
