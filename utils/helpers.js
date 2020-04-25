@@ -64,73 +64,62 @@ export async function saveDeckTitle(title, card) {
   }
 }
 
-export function clearLocalNotification() {
-  return AsyncStorage.removeItem(NOTIFICATION_KEY).then(
-    Notifications.cancelAllScheduledNotificationsAsync
-  );
+export function clearLocalNotification () {
+  return AsyncStorage.removeItem(NOTIFICATION_KEY)
+    .then(Notifications.cancelAllScheduledNotificationsAsync(res => {
+      console.log(res)
+      console.log("Clear noti")
+    }))
 }
 
-function createNotification() {
+function createNotification () {
   return {
-    title: 'Study Today',
-    body: "Do not forget to study today",
+    title: 'Log your stats!',
+    body: "👋 don't forget to log your stats for today!",
     ios: {
-      sound: true
+      sound: true,
     },
     android: {
-      channelId: 'DailyReminder',
+      sound: true,
+      priority: 'high',
       sticky: false,
-      color: 'red'
+      vibrate: true,
     }
-  };
+  }
 }
 
-function createChannel() {
-  return {
-    name: 'Study Today',
-    description: 'Do not forget to study today',
-    sound: true,
-    priority: 'high'
-  };
-}
-
-export function  setLocalNotification() {
+export async function setLocalNotification () {
+  console.log("setLocalNotification")
   AsyncStorage.getItem(NOTIFICATION_KEY)
     .then(JSON.parse)
-    .then(data => {
+    .then((data) => {
       if (data === null) {
-        Permissions.askAsync(Permissions.NOTIFICATIONS).then(({ status }) => {
-          if (status === 'granted') {
-            Notifications.createChannelAndroidAsync('DailyReminder', createChannel())
-              .then(val => console.log('channel return:', val))
-              .then(() => {
-                Notifications.cancelAllScheduledNotificationsAsync();
+         Permissions.getAsync(Permissions.NOTIFICATIONS).then(res => {
+           if (res.status === 'granted') {
+             console.log(res)
+             Notifications.cancelAllScheduledNotificationsAsync().then(cancelRes => {
+                 let tomorrow = new Date()
+                 tomorrow.setDate(tomorrow.getDate()+1)
+                 tomorrow.setHours(20)
+                 tomorrow.setMinutes(0)
 
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                tomorrow.setHours(20);
-                tomorrow.setMinutes(0);
-                try {
-                  Notifications.scheduleLocalNotificationAsync(
-                    {
-                      title: 'Study Today',
-                      body: 'Do not forget to study today',
-                    },
-                    {
-                      time: tomorrow,
-                      repeat: 'day'
-                    }
-                  );
-                } catch (e) {
-                  alert(e);
-                }
-                AsyncStorage.setItem(NOTIFICATION_KEY, JSON.stringify(true));
-              })
-              .catch(err => {
-                console.log('err', err);
-              });
-          }
-        });
+                Notifications.scheduleLocalNotificationAsync({
+                  title: 'hello',
+                  body: 'hey'
+                }, {
+                  time: tomorrow,
+                  repeat: 'day'
+                })
+
+                 AsyncStorage.setItem(NOTIFICATION_KEY, JSON.stringify(true))
+             })
+           }else{
+             console.log('error in permission get async')
+           }
+         })
+
       }
-    });
+    }).catch(err => {
+      console.log(err)
+    })
 }
