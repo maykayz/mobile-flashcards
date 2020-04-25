@@ -6,11 +6,11 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {getDecks} from '../utils/helpers'
 YellowBox.ignoreWarnings(['Remote debugger']);
 
-function DeckItem (item){
+function DeckItem (item,index){
   const deck = item.item
-  console.log(deck)
+  const key = item.index
   return (
-      <View style={styles.deckItem}>
+      <View style={styles.deckItem} key={key}>
           <Text>{deck.title}</Text>
           <Text>{deck.questions.length} cards</Text>
       </View>
@@ -41,12 +41,11 @@ class DeckListView extends Component {
       deck: deck
     })
   }
-  renderDeck = (item) => {
-    console.log(item)
-    const deck = item.item
+  renderDeck = (item,index) => {
+    const deck = item
     return (
-      <TouchableOpacity onPress={e => this.handlePress(e,deck)}>
-        <DeckItem item={deck}/>
+      <TouchableOpacity onPress={e => this.handlePress(e,deck)} key={index}>
+        <DeckItem item={deck} index={index}/>
       </TouchableOpacity>
     )
   }
@@ -57,7 +56,9 @@ class DeckListView extends Component {
     const {decks} = this.state
     if(decks){
       return (
-        <FlatList data={decks} renderItem={this.renderDeck}
+        <FlatList data={decks}
+        renderItem={({item,index}) => this.renderDeck(item,index)}
+        keyExtractor={(item,index) => index.toString()}
         refreshControl={
             <RefreshControl
               refreshing={this.state.isRefreshing}
