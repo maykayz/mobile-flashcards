@@ -30,7 +30,7 @@ class DeckDetailView extends Component {
   }
   render() {
     const {deck} = this.state
-    if(deck){
+    if(deck && deck.questions){
       return (
         <View style={[styles.container,styles.alignCenter,styles.justifyBetween]}>
             <View style={styles.flex1}>
