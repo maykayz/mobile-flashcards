@@ -2,39 +2,40 @@ import React, {Component} from 'react';
 import { Text, View,SafeAreaView,StyleSheet,TouchableOpacity,FlatList } from 'react-native';
 import Constants from 'expo-constants';
 import { YellowBox } from 'react-native';
+import {connect} from 'react-redux'
 YellowBox.ignoreWarnings(['Remote debugger']);
 
 class DeckDetailView extends Component {
   state = {
-    deck:{
-      }
   }
   componentDidMount(){
-    const {deck} = this.props.route.params
-    this.setState({
-      deck: deck
-    })
+  }
+  shouldComponentUpdate(nextProps) {
+    return nextProps.deck !== undefined;
   }
   startQuiz = (e) => {
     var {navigation} = this.props
     navigation.navigate('Quiz',{
-      deck: this.state.deck
+      title : this.props.deck.title
     })
   }
   addQuiz = (e) => {
     var {navigation} = this.props
+    var {deck} = this.props
+    console.log(deck)
     navigation.navigate('NewQuiz',{
-      deck: this.state.deck
+      deck: deck
     })
   }
   render() {
-    const {deck} = this.state
+    console.log(this.props.decks)
+    var {deck} = this.props
     if(deck && deck.questions){
       return (
         <View style={[styles.container,styles.alignCenter,styles.justifyBetween]}>
             <View style={styles.flex1}>
                 <Text style={[styles.title1,styles.textCenter]}>{deck.title}</Text>
-                <Text style={[styles.title2,styles.textCenter]}>{deck.questions ? deck.questions.length : 0} Cards</Text>
+                <Text style={[styles.title2,styles.textCenter]}>{deck.questions.length ? deck.questions.length : 0} Cards</Text>
             </View>
             <View style={[styles.flex1]}>
                 <TouchableOpacity style={[styles.btn,styles.btnPrimary]} onPress={e => this.startQuiz(e)}>
@@ -48,7 +49,16 @@ class DeckDetailView extends Component {
       );
     }else{
       return(
-        <Text style={[styles.title3,styles.textCenter]}>Loading</Text>
+        <View style={[styles.container,styles.alignCenter,styles.justifyBetween]}>
+            <View style={styles.flex1}>
+                <Text style={styles.title2}>No Quiz...! Try adding new decks.</Text>
+            </View>
+            <View style={[styles.flex1]}>
+                <TouchableOpacity style={[styles.btn,styles.btnSecondary]}  onPress={e => this.addQuiz(e)}>
+                    <Text style={[styles.textWhite]}>Add Quiz</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
       )
     }
   }
@@ -130,5 +140,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#dc3545',
   },
 })
+function mapStateToProps ({decks},props) {
+  return {
+    deck: Object.values(decks).filter(deck => deck.title == props.route.params.title)[0],
+    decks: decks,
+    props
+  }
+}
 
-export default DeckDetailView
+export default connect(mapStateToProps)(DeckDetailView)

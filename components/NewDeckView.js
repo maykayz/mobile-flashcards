@@ -2,31 +2,33 @@ import React, {Component} from 'react';
 import { Text, View,StyleSheet,TouchableOpacity,FlatList ,TextInput, KeyboardAvoidingView,Platform,YellowBox} from 'react-native';
 import Constants from 'expo-constants';
 import {saveDeck,getDeck} from '../utils/helpers'
+import {connect} from 'react-redux'
+import {handleAddDeck} from '../actions/shared'
 
 YellowBox.ignoreWarnings(['Remote debugger']);
 
 class NewDeckView extends Component {
   state = {
-    title: 'Enter Deck Name: '
+    title: ''
   }
   handlePress = (e) => {
     e.preventDefault()
     const {title} = this.state
     var {navigation} = this.props
-    saveDeck(title).then(res => {
-      getDeck(title).then(deck => {
-        console.log(deck)
-        navigation.navigate('DeckDetail',{
-            deck: deck
-        })
+
+      this.props.handleAddDeck(title)
+      navigation.navigate('DeckDetail',{
+          title: title
       })
-    })
+
   }
   onChangeText = (text) => {
     const input = text
     this.setState({
       title : input
     })
+  }
+  componentDidMount(){
   }
   render() {
     const {title} = this.state
@@ -153,4 +155,11 @@ const styles = StyleSheet.create({
   }
 })
 
-export default NewDeckView
+function mapStateToProps (deck,props) {
+  return {
+    deck,
+    props
+  }
+}
+
+export default connect(mapStateToProps,{handleAddDeck})(NewDeckView)

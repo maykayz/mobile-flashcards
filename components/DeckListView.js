@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import { Text, View,SafeAreaView,StyleSheet,TouchableOpacity,FlatList,YellowBox,RefreshControl } from 'react-native';
 import Constants from 'expo-constants';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
-import {getDecks} from '../utils/helpers'
+import {connect} from 'react-redux'
+import { handleInitialData } from '../actions/shared'
 YellowBox.ignoreWarnings(['Remote debugger']);
 
 function DeckItem (item,index){
@@ -19,26 +19,15 @@ function DeckItem (item,index){
 
 class DeckListView extends Component {
   state = {
-    decks: [],
     isRefreshing: false
   }
-  getDeck = () => {
-    getDecks().then(res => {
-      var temp = Object.values(res)
-      if(temp){
-        this.setState({
-          decks : temp
-        })
-      }
-    })
-  }
   componentDidMount(){
-    this.getDeck()
+    this.props.handleInitialData();
   }
   handlePress = (e,deck) => {
     var {navigation} = this.props
     navigation.navigate('DeckDetail',{
-      deck: deck
+      title: deck.title
     })
   }
   renderDeck = (item,index) => {
@@ -53,8 +42,10 @@ class DeckListView extends Component {
     this.getDeck()
   }
   render (){
-    const {decks} = this.state
-    if(decks){
+    var temp = this.props.decks
+    const decks = Object.values(temp)
+    console.log(decks)
+    if(decks.length > 0){
       return (
         <FlatList data={decks}
         renderItem={({item,index}) => this.renderDeck(item,index)}
@@ -71,7 +62,9 @@ class DeckListView extends Component {
       );
     }else{
       return (
-        <Text>Loading</Text>
+        <View style={styles.centerView}>
+            <Text style={styles.title2}>No Decks...! Try adding new decks.</Text>
+        </View>
       )
     }
   }
@@ -80,6 +73,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: Constants.statusBarHeight,
+  },
+  title2: {
+    fontSize: 16,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   deckItem: {
     height: 100,
@@ -126,8 +124,11 @@ const styles = StyleSheet.create({
   },
 })
 
-export default DeckListView
 
+function mapStateToProps ({decks},props) {
+  return {
+    decks
+  }
+}
 
-// <FlatList style={styles.container} data={decks} renderItem={this.renderDeck}>
-// </FlatList>
+export default connect(mapStateToProps,{handleInitialData})(DeckListView)

@@ -1,5 +1,4 @@
 import {RECEIVE_DECKS,ADD_DECK,ADD_CARD} from '../actions/types'
-import  {getDecks}  from '../utils/helpers'
 
 export function receiveDecks(decks) {
   return {
@@ -20,13 +19,5 @@ export function addCardToDeck(deckId, card) {
     type: ADD_CARD,
     deckId,
     card
-  };
-}
-
-export function handleInitialData() {
-  return dispatch => {
-    return getDecks().then(decks => {
-      dispatch(receiveDecks(decks));
-    });
   };
 }

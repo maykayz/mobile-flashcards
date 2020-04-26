@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import { Text, View,SafeAreaView,StyleSheet,TouchableOpacity,FlatList,KeyboardAvoidingView ,TextInput,Platform} from 'react-native';
 import Constants from 'expo-constants';
 import { YellowBox } from 'react-native';
-import {saveDeckTitle} from '../utils/helpers'
+import {connect} from 'react-redux'
+import {handleAddCardToDeck} from '../actions/shared'
 
 YellowBox.ignoreWarnings(['Remote debugger']);
 
@@ -21,13 +22,20 @@ class NewQuizView extends Component {
     var {questionText,answerText} = this.state
     var {navigation} = this.props
     var {deck} = this.props.route.params
-    var question = {
-      question: questionText,
-      answer: answerText
+    if(questionText.length > 0 && answerText.length > 0){
+      console.log(this.props.route)
+      var question = {
+        question: questionText,
+        answer: answerText
+      }
+      this.props.handleAddCardToDeck(deck.title,question)
+        navigation.navigate('DeckDetail',{
+          title: deck.title
+        })
+    }else{
+      alert("Please Fill Question & Answer")
     }
-    saveDeckTitle(deck.title,question).then(res => {
-      navigation.navigate('DeckList')
-    })
+
   }
   onChangeTextQuestion = (text) => {
     this.setState({
@@ -41,8 +49,6 @@ class NewQuizView extends Component {
   }
   componentDidMount(){
     var {deck} = this.props.route.params
-    console.log("NEQ QUIZ VIEW")
-    console.log(deck)
     if(deck){
       this.setState({
         title: deck.title
@@ -181,4 +187,11 @@ const styles = StyleSheet.create({
   }
 })
 
-export default NewQuizView
+function mapStateToProps ({decks},props) {
+  return {
+    deck: Object.values(decks).filter(deck => deck.title == props.route.params.title)[0],
+    props
+  }
+}
+
+export default connect(mapStateToProps,{handleAddCardToDeck})(NewQuizView)

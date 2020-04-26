@@ -42,9 +42,6 @@ export async function saveDeck(title) {
 }
 
 export async function saveDeckTitle(title, card) {
-    console.log(title)
-    // var newCard = JSON.stringify(card)
-    // console.log(newCard)
   try {
     const deck = await getDeck(title);
     await AsyncStorage.mergeItem(

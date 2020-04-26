@@ -10,7 +10,18 @@ import DeckNavigationController from './components/DeckNavigationController'
 import NewDeckView from './components/NewDeckView'
 import {setLocalNotification} from './utils/helpers'
 
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import logger from 'redux-logger';
+import { Provider } from 'react-redux';
+import reducer from './reducers/index';
+
 YellowBox.ignoreWarnings(['Remote debugger']);
+
+const store = createStore(
+  reducer,
+  applyMiddleware(thunk, logger)
+);
 
 const Tab = createBottomTabNavigator();
 
@@ -20,27 +31,28 @@ class App extends Component {
   }
   render() {
     return (
-      <NavigationContainer onNavigationStateChange={this.handleNavigationStateChange}>
-          <Tab.Navigator>
-            <Tab.Screen name="Home"
-            options={{
-              tabBarLabel: 'Home',
-              tabBarIcon: ({ color, size }) => (
-                <MaterialCommunityIcons name="home" color={color} size={size} />
-              ),
-            }}
-         component={DeckNavigationController} />
-            <Tab.Screen name="New Deck"
-            options={{
-              tabBarLabel: 'New Deck',
-              tabBarIcon: ({ color, size }) => (
-                <MaterialCommunityIcons name="cards" color={color} size={size} />
-              ),
-            }}
-            component={NewDeckView} />
-          </Tab.Navigator>
-      </NavigationContainer>
-
+      <Provider store={store}>
+        <NavigationContainer onNavigationStateChange={this.handleNavigationStateChange}>
+            <Tab.Navigator>
+              <Tab.Screen name="Home"
+              options={{
+                tabBarLabel: 'Home',
+                tabBarIcon: ({ color, size }) => (
+                  <MaterialCommunityIcons name="home" color={color} size={size} />
+                ),
+              }}
+           component={DeckNavigationController} />
+              <Tab.Screen name="New Deck"
+              options={{
+                tabBarLabel: 'New Deck',
+                tabBarIcon: ({ color, size }) => (
+                  <MaterialCommunityIcons name="cards" color={color} size={size} />
+                ),
+              }}
+              component={NewDeckView} />
+            </Tab.Navigator>
+        </NavigationContainer>
+    </Provider>
     );
   }
 }

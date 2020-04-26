@@ -3,8 +3,9 @@ import { Text, View,SafeAreaView,StyleSheet,TouchableOpacity,FlatList } from 're
 import {setLocalNotification,clearLocalNotification} from '../utils/helpers'
 import Constants from 'expo-constants';
 import { YellowBox } from 'react-native';
+import {connect} from 'react-redux'
 YellowBox.ignoreWarnings(['Remote debugger']);
-
+import {getDeck} from '../utils/helpers'
 
 function FrontView ({item,numberOfCards,index,handleViewAnswer,handleCorrect,handleWrong}){
   const question = item
@@ -47,11 +48,6 @@ function BackView ({item,numberOfCards,index,handleBack}){
 }
 
 function CompleteView ({totalMark,totalQuestion,backToDeck,restartQuiz}){
-
-
-
-
-
       clearLocalNotification().then(setLocalNotification)
   var completeText = '';
   if(totalMark == totalQuestion){
@@ -84,14 +80,13 @@ class QuizView extends Component {
     isQuestionView: true,
     currentCardIndex: 0,
     totalMark: 0,
-    deck: {},
     isComplete: false
   }
   componentDidMount(){
-    const {deck} = this.props.route.params
-    this.setState({
-      deck: deck
+    getDeck(this.props.route.params.title).then(res =>{
+          console.log(res)
     })
+
   }
   restartQuiz = (e) => {
     this.setState({
@@ -101,6 +96,7 @@ class QuizView extends Component {
     })
   }
   backToDeck = (e) => {
+    var {deck} = this.props
     var {navigation} = this.props
     navigation.navigate('DeckDetail',{
       deck: this.state.deck
@@ -114,7 +110,8 @@ class QuizView extends Component {
   }
   handleCorrect = (e) => {
       e.preventDefault()
-      const {deck,totalMark,currentCardIndex} = this.state
+      const {totalMark,currentCardIndex} = this.state
+      var {deck} = this.props
       this.setState({
         totalMark: totalMark+1
       })
@@ -132,7 +129,8 @@ class QuizView extends Component {
   }
   handleWrong = (e) => {
     e.preventDefault()
-    const {deck,currentCardIndex} = this.state
+    var {deck} = this.props
+    const {currentCardIndex} = this.state
     if(currentCardIndex < deck.questions.length){
       this.setState({
         currentCardIndex: currentCardIndex+1
@@ -153,7 +151,7 @@ class QuizView extends Component {
   }
   render() {
     const {currentCardIndex,totalMark} = this.state
-    const {deck} = this.props.route.params
+    var {deck} = this.props
     const totalQuestion = deck.questions.length
       if(deck){
         if(deck.questions && deck.questions.length > 0){
@@ -281,4 +279,11 @@ const styles = StyleSheet.create({
   },
 })
 
-export default QuizView
+function mapStateToProps ({decks},props) {
+  return {
+    deck: Object.values(decks).filter(deck => deck.title == props.route.params.title)[0],
+    props
+  }
+}
+
+export default connect(mapStateToProps)(QuizView)
